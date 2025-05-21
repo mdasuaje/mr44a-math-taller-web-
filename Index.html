@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planes de Talleres de Matemáticas - Misión Ribas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Application Structure Plan: 
+        La SPA contará con un encabezado principal y una navegación (pestañas o botones estilizados) para seleccionar entre "Taller 1" y "Taller 2".
+        Al seleccionar un taller, se mostrará el plan detallado del mismo.
+        Los detalles del taller se organizarán en secciones claras: Nombre, Áreas Integradas, Objetivos de Aprendizaje (con subcategorías CONOCER, HACER, SER, CONVIVIR), Vinculación con el Componente Comunitario, Fase Online, Fase Presencial y Producción Escrita Requerida.
+        Secciones clave como Objetivos, Fase Online, Fase Presencial y Producción Escrita serán interactivas (colapsables/expandibles mediante JavaScript) para gestionar la densidad de información y permitir a los usuarios centrarse en detalles específicos.
+        Esta estructura se eligió porque el material de origen define claramente dos talleres distintos. Una navegación basada en pestañas o botones proporciona una separación clara y una visualización enfocada. Las secciones colapsables mejoran la usabilidad al evitar la sobrecarga de información en una sola página, permitiendo a los usuarios revelar detalles progresivamente.
+    -->
+    <!-- Visualization & Content Choices: 
+        Planes de Talleres (General):
+            Report Info: Planes completos para dos talleres de matemáticas.
+            Goal: Informar y Organizar.
+            Viz/Presentation: Texto HTML estructurado, encabezados, listas, párrafos. Navegación principal (pestañas/botones) para cambiar entre talleres.
+            Interaction: Clic en pestañas/botones para mostrar el contenido del taller. Secciones colapsables (JS toggle) para partes detalladas de cada taller (Objetivos, Fases, Producción Escrita).
+            Justification: Presentación clara de planes textuales detallados. La interactividad mejora la navegación y reduce la carga cognitiva.
+            Library/Method: HTML, Tailwind CSS, Vanilla JS.
+        Áreas Integradas:
+            Report Info: Lista de asignaturas integradas.
+            Goal: Informar.
+            Viz/Presentation: Lista con viñetas o elementos tipo etiqueta dentro de la visualización de cada taller.
+            Interaction: Visualización estática.
+            Justification: Presentación simple y clara para una lista de ítems.
+            Library/Method: HTML, Tailwind CSS.
+        Objetivos de Aprendizaje (CONOCER, HACER, SER, CONVIVIR):
+            Report Info: Objetivos de aprendizaje específicos categorizados.
+            Goal: Informar.
+            Viz/Presentation: Encabezados para cada categoría (CONOCER, etc.) seguidos de listas con viñetas. Contenido dentro de una sección colapsable para "Objetivos de Aprendizaje".
+            Interaction: La sección principal es colapsable.
+            Justification: Organiza los objetivos claramente y gestiona el espacio.
+            Library/Method: HTML, Tailwind CSS, Vanilla JS.
+        Fase Online / Fase Presencial:
+            Report Info: Actividades detalladas, herramientas, productos, rol del facilitador.
+            Goal: Informar y Organizar.
+            Viz/Presentation: Texto estructurado con subtítulos para "Actividades", "Herramientas", "Productos Intermedios", "Rol del Facilitador". Cada fase dentro de su propia sección colapsable. Iconos Unicode (ej: 💻 para Online, 🏫 para Presencial) para distinción visual.
+            Interaction: Secciones colapsables.
+            Justification: Desglosa información compleja en partes digeribles.
+            Library/Method: HTML, Tailwind CSS, Vanilla JS.
+        Producción Escrita Requerida:
+            Report Info: Detalles sobre apuntes en cuaderno, informes, material de portafolio.
+            Goal: Informar.
+            Viz/Presentation: Texto estructurado con subtítulos para cada tipo de producción escrita. Dentro de una sección colapsable.
+            Interaction: Sección colapsable.
+            Justification: Describe claramente los entregables.
+            Library/Method: HTML, Tailwind CSS, Vanilla JS.
+    -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .tab-button {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .tab-button.active {
+            background-color: #0D9488; /* teal-600 */
+            color: white;
+            border-bottom: 2px solid #0F766E; /* teal-700 */
+        }
+        .tab-button:not(.active):hover {
+            background-color: #F0F9FF; /* sky-50 */
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .collapsible-header {
+            cursor: pointer;
+            user-select: none;
+        }
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .collapsible-content.open {
+            max-height: 2000px; /* Adjust as needed for content */
+            transition: max-height 0.5s ease-in;
+        }
+        .section-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+        }
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937; /* gray-800 */
+            margin-bottom: 1rem;
+        }
+        .sub-section-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #0D9488; /* teal-600 */
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        ul {
+            list-style-position: inside;
+            padding-left: 1rem;
+        }
+        li { margin-bottom: 0.25rem; }
+        .icon {
+            margin-right: 0.5rem;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body class="bg-stone-100 text-stone-800 min-h-screen antialiased">
+    <header class="bg-teal-700 text-white p-6 shadow-md">
+        <div class="container mx-auto max-w-5xl">
+            <h1 class="text-3xl font-bold text-center">Planes de Talleres Híbridos de Matemáticas</h1>
+            <p class="text-center text-teal-100 text-lg">Misión Ribas - Nivel I, Semestre 1</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto max-w-5xl p-4 sm:p-6">
+        <div class="mb-6 intro-text section-card">
+            <p class="text-lg text-stone-700">
+                Bienvenido a la visualización interactiva de los planes para dos talleres de matemáticas diseñados para los vencedores de la Misión Ribas. 
+                Estos talleres buscan fomentar la apreciación por las matemáticas, la formalización de sus conceptos y su aplicación práctica, 
+                integrando el principio de "Escribir para Aprender". Selecciona un taller para explorar sus detalles.
+            </p>
+        </div>
+
+        <div class="mb-6 flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-2 rounded-lg p-1 bg-stone-200 shadow">
+            <button class="tab-button flex-1 py-3 px-4 font-semibold rounded-md text-stone-700 bg-stone-50 hover:bg-stone-100" data-tab="taller1">
+                Taller 1: Valoración y Conexiones
+            </button>
+            <button class="tab-button flex-1 py-3 px-4 font-semibold rounded-md text-stone-700 bg-stone-50 hover:bg-stone-100" data-tab="taller2">
+                Taller 2: Formalización y Resolución
+            </button>
+        </div>
+
+        <div id="taller1" class="content-section">
+            </div>
+        <div id="taller2" class="content-section">
+            </div>
+    </main>
+
+    <footer class="text-center p-4 mt-8 text-stone-600">
+        <p>&copy; <span id="currentYear"></span> Misión Ribas. Contenido educativo.</p>
+    </footer>
+
+    <script>
+        const talleresData = [
+            {
+                id: "taller1",
+                nombre: "Las Matemáticas a Nuestro Alrededor: Valoración, Orígenes y Conexiones",
+                dirigidoA: "Participantes (Vencedores) de la Misión Ribas 44A, Nivel I, Semestre I.",
+                duracionSugerida: "2-4 horas.",
+                areasIntegradas: [
+                    "Matemáticas: Conceptos básicos (conteo, medición, formas, operaciones básicas, porcentajes), aplicación en la vida cotidiana y laboral.",
+                    "Lenguaje: Redacción de reflexiones, informes de hallazgos, descripciones. Comunicación oral de ideas.",
+                    "Formación Ciudadana: Vinculación de las matemáticas con el entorno comunitario y las necesidades sociales.",
+                    "Arte y Cultura (tangencial): Apreciación de formas geométricas en el arte y el entorno (ej. USA 9 'El Arte y el Orden Geométrico')."
+                ],
+                objetivos: {
+                    CONOCER: "Identificar y describir la presencia y aplicación de ideas matemáticas básicas en situaciones cotidianas, comunitarias, campos laborales (albañilería, panadería, carpintería, agropecuaria, etc.) y su relevancia histórica ligada a necesidades humanas. Reconocer la contribución de las matemáticas a otros campos.",
+                    HACER: "Relacionar los contenidos iniciales del programa de Matemáticas del Semestre I con ejemplos concretos de su aplicación. Iniciar la vinculación entre ideas matemáticas del entorno y la necesidad de un lenguaje preciso.",
+                    SER: "Desarrollar una actitud de aprecio, curiosidad y valoración hacia las matemáticas al comprender su utilidad, omnipresencia y relevancia histórica.",
+                    CONVIVIR: "Compartir percepciones, experiencias y reflexiones sobre la utilidad y el valor de las matemáticas, fomentando una actitud positiva hacia su estudio, la colaboración y el respeto por diferentes perspectivas."
+                },
+                vinculacionComponente: "Este taller contribuye a la Fase I del Proyecto Comunitario (Reflexión y Análisis Exploratorio) al ayudar a los vencedores a identificar cómo las matemáticas están presentes en su comunidad y cómo pueden ser una herramienta para entender y cuantificar aspectos de su realidad socio-laboral (ej. identificar socio-indicadores que implican cantidades o medidas, calcular recursos para un proyecto pequeño).",
+                faseOnline: {
+                    titulo: "💻 Fase Online (Aula Virtual - Classroom/Google)",
+                    actividades: [
+                        "Búsquedas online (Google): Buscar 'ejemplos de matemáticas en la vida diaria', 'matemáticas en los oficios', 'historia de los números', 'matemáticas en mi comunidad'. Explorar artículos sencillos o infografías sobre cómo diferentes culturas antiguas usaban las matemáticas.",
+                        "Textos para leer (Google Classroom): Fragmentos seleccionados de las USA 2 y USA 7. Artículos cortos sobre la importancia de medir, contar o las formas geométricas.",
+                        "Videos para visualizar (YouTube, enlaces en Classroom): Videos cortos sobre '¿Para qué sirven las matemáticas?', documentales breves sobre historia del conteo o geometría, tutoriales de matemáticas en oficios."
+                    ],
+                    herramientas: [
+                        "Google Classroom: Para acceder a materiales, recibir instrucciones y entregar productos intermedios.",
+                        "Google Search: Para investigación autónoma.",
+                        "YouTube: Para visualización de material audiovisual.",
+                        "Google Docs/Forms (opcional): Para compartir hallazgos o responder cuestionarios."
+                    ],
+                    productosIntermedios: [
+                        "Cuaderno de apuntes (o doc digital): Listado de al menos 5 ejemplos de uso de matemáticas. Breve resumen (1 párrafo) sobre video/texto interesante. Una pregunta clave sobre utilidad/aplicación de matemáticas.",
+                        "Recopilación de imágenes (opcional): 1-2 imágenes que muestren matemáticas en su entorno."
+                    ]
+                },
+                fasePresencial: {
+                    titulo: "🏫 Fase Presencial (Aula)",
+                    actividades: [
+                        "Inicio con pregunta generadora y lluvia de ideas: '¿Dónde hemos usado o visto matemáticas hoy/esta semana?' o '¿Para qué creen que sirven realmente las matemáticas en nuestra vida?'. Debate guiado.",
+                        "Presentación dialogada por el facilitador: Con ejemplos visuales y concretos de la aplicación de las matemáticas, vinculándolos con la realidad de los vencedores y hallazgos online. Breve recorrido histórico-cultural.",
+                        "Actividad grupal 'Cazadores de Matemáticas': Grupos comparten ejemplos preparados. Identifican y documentan más situaciones de uso de matemáticas básicas del Semestre I en su entorno.",
+                        "'Escribir para Aprender' (grupo/individual): Redacción en cuaderno de un breve 'Informe de Hallazgos' o texto reflexivo sobre la importancia de las matemáticas identificadas.",
+                        "Plenaria: Grupos exponen hallazgos. Discusión sobre diversidad de aplicaciones e importancia de precisión. Introducción a la formalización del siguiente taller.",
+                        "Cierre con reflexión individual escrita: '¿Qué nueva idea sobre el valor de las matemáticas me llevo hoy?'."
+                    ],
+                    rolFacilitador: [
+                        "Guía y Motivador: Orientar búsquedas online, estimular curiosidad.",
+                        "Moderador: Facilitar lluvia de ideas, debates, puesta en común.",
+                        "Conector: Ayudar a vincular ejemplos cotidianos con conceptos matemáticos formales.",
+                        "Introductor a la formalización: Sembrar idea de necesidad de lenguaje matemático preciso."
+                    ]
+                },
+                produccionEscrita: {
+                    titulo: "✍️ Producción Escrita Requerida",
+                    cuaderno: [
+                        "Notas de la investigación online: Listado de ejemplos, resúmenes de videos/textos, preguntas clave.",
+                        "Documentación de la actividad 'Cazadores de Matemáticas': Dibujos, listas, descripciones.",
+                        "Reflexiones de la discusión presencial: Ideas principales del debate y la plenaria."
+                    ],
+                    informes: [
+                        "'Informe de Hallazgos' (grupal o individual): Texto breve (1 página) que resuma situaciones identificadas de uso de matemáticas y explicación de su importancia."
+                    ],
+                    portafolio: [
+                        "El 'Informe de Hallazgos'.",
+                        "Reflexión personal escrita (1-2 párrafos): '¿Qué aprendí hoy sobre el valor de las matemáticas y cómo creo que me puede ayudar en mi vida o en mi proyecto comunitario?'."
+                    ],
+                    refuerzo: {
+                        titulo: "Refuerzo del principio 'Escribir para Aprender' y contribución a la evaluación integral:",
+                        descripcion: "'Escribir para Aprender': Al tomar notas, listar ejemplos, redactar el informe de hallazgos y la reflexión personal, los vencedores organizan sus ideas, conectan conceptos abstractos con la realidad, y expresan su comprensión sobre la relevancia de las matemáticas. La escritura les ayuda a verbalizar y consolidar su apreciación. Evaluación Integral: Se valorará la participación (CONVIVIR, SER), la identificación de ejemplos y la reflexión sobre la importancia (CONOCER, HACER), y la actitud de aprecio (SER)."
+                    }
+                }
+            },
+            {
+                id: "taller2",
+                nombre: "Formalizando y Resolviendo: Conceptos Matemáticos del Semestre I",
+                dirigidoA: "Participantes (Vencedores) de la Misión Ribas 44A, Nivel I, Semestre I.",
+                duracionSugerida: "4-6 horas (puede dividirse en varias sesiones).",
+                areasIntegradas: [
+                    "Matemáticas: Contenidos de la Malla Curricular del Semestre I (Conjuntos Numéricos y operaciones, Magnitudes y Unidades, Figuras Geométricas, Área y Perímetro, Divisibilidad, Potencias, Raíces, Proporción, Tanto por Ciento, Operaciones Combinadas). Terminología y simbología matemática. Resolución de problemas.",
+                    "Lenguaje: Descripción precisa de procedimientos matemáticos, redacción de soluciones de problemas, uso de terminología específica.",
+                    "Formación Ciudadana (aplicada): Resolución de problemas matemáticos contextualizados en situaciones comunitarias o laborales relevantes para el Proyecto Comunitario."
+                ],
+                objetivos: {
+                    CONOCER: "Explicar y describir con precisión (usando terminología y simbología adecuadas) los conceptos, propiedades y procedimientos clave de la Malla Curricular de Matemáticas del Semestre I.",
+                    HACER: "Aplicar los procedimientos formales para realizar cálculos y resolver ejercicios y problemas matemáticos específicos de los contenidos del Semestre I. Utilizar la terminología y simbología matemática de manera correcta y consistente al plantear y resolver problemas.",
+                    SER: "Demostrar rigor, orden y exactitud en la aplicación de los procedimientos matemáticos. Desarrollar confianza en la capacidad de usar el lenguaje matemático formal.",
+                    CONVIVIR: "Trabajar cooperativamente en la resolución de ejercicios y problemas, explicando los pasos y conceptos a los compañeros, y aprendiendo de los demás."
+                },
+                vinculacionComponente: "Este taller apoya directamente la Fase I del Proyecto Comunitario y prepara para la Fase III (Construcción metodológica), al proveer herramientas matemáticas formales necesarias para cuantificar necesidades, planificar recursos, medir espacios, o analizar datos simples relevantes para sus proyectos (ej. calcular porcentajes de población, medir áreas de espacios comunitarios, estimar cantidades).",
+                faseOnline: {
+                    titulo: "💻 Fase Online (Aula Virtual - Classroom/Google)",
+                    actividades: [
+                        "Repaso de Contenidos (Google Classroom): Acceder a guías de estudio o resúmenes sobre temas clave del Semestre I. Resolver cuestionarios cortos de autoevaluación (Google Forms).",
+                        "Videos para visualizar (YouTube, enlaces en Classroom): Video-clases cortas explicando conceptos específicos (ej. suma de fracciones, MCM/MCD, área del triángulo). Tutoriales de resolución de problemas formales.",
+                        "Exploración de herramientas (opcional y guiado): Calculadoras online de MCM/MCD o porcentajes para verificar resultados."
+                    ],
+                    herramientas: [
+                        "Google Classroom: Para guías, videos, cuestionarios y entrega de ejercicios.",
+                        "YouTube: Para video-clases y tutoriales.",
+                        "Google Forms: Para cuestionarios de autoevaluación.",
+                        "Google Docs: Para resolver y entregar ejercicios preparatorios."
+                    ],
+                    productosIntermedios: [
+                        "Cuaderno de apuntes (o doc digital): Notas y resúmenes de videos/guías. Resolución de 3-5 ejercicios preparatorios. Listado de 2-3 dudas o dificultades específicas."
+                    ]
+                },
+                fasePresencial: {
+                    titulo: "🏫 Fase Presencial (Aula)",
+                    actividades: [
+                        "Repaso y aclaración de dudas: Revisión de dudas de la fase online. Aclaración de conceptos clave por el facilitador.",
+                        "Presentación formal de conceptos, definiciones, simbología y procedimientos: Facilitador expone temas, enfatizando el 'por qué' formal y uso correcto del lenguaje. Resuelve ejercicios modelo.",
+                        "Resolución de ejercicios formales (individual y en grupos): Vencedores aplican procedimientos a nuevos ejercicios. Facilitador guía y corrige.",
+                        "Taller de Resolución de Problemas Contextualizados: Problemas basados en situaciones reales, oficios o Proyecto Comunitario. Grupos trabajan cooperativamente.",
+                        "'Escribir para Aprender': Vencedores documentan en cuadernos resolución de problema complejo: enunciado, datos, plan, cálculos formales, respuesta.",
+                        "Plenaria: Grupos presentan resolución de problemas, explicando pasos y justificando procedimientos. Discusión de resultados y errores.",
+                        "Cierre con reflexión grupal: Sobre cómo formalización y rigor permiten resolver problemas efectivamente y comunicar ideas matemáticas con claridad."
+                    ],
+                    rolFacilitador: [
+                        "Experto en contenido: Dominar temas y explicarlos con claridad.",
+                        "Modelador: Demostrar resolución de problemas con lenguaje y procedimientos formales.",
+                        "Guía y corrector: Apoyar durante resolución de ejercicios, ofrecer pistas, corregir errores.",
+                        "Fomentador del rigor: Insistir en uso correcto de terminología, simbología y presentación ordenada."
+                    ]
+                },
+                produccionEscrita: {
+                    titulo: "✍️ Producción Escrita Requerida",
+                    cuaderno: [
+                        "Notas de las explicaciones y ejemplos del facilitador.",
+                        "Resolución detallada y formal de los ejercicios propuestos en clase.",
+                        "Documentación completa del proceso de resolución de al menos un problema contextualizado."
+                    ],
+                    informes: [
+                        "'Informe de Resolución de Problemas Matemáticos' (individual o grupal): Documento con solución detallada y formal de 2-3 problemas contextualizados."
+                    ],
+                    portafolio: [
+                        "El 'Informe de Resolución de Problemas Matemáticos'.",
+                        "Un glosario personal con al menos 10 términos matemáticos clave del semestre, con definición formal y ejemplo.",
+                        "Reflexión escrita (1-2 párrafos): 'Describe un concepto matemático que antes te parecía difícil y ahora entiendes mejor. ¿Cómo te sientes al usar un lenguaje matemático más preciso?'."
+                    ],
+                    refuerzo: {
+                        titulo: "Refuerzo del principio 'Escribir para Aprender' y contribución a la evaluación integral:",
+                        descripcion: "'Escribir para Aprender': Al documentar la resolución de problemas, escribir los pasos, usar la simbología correcta y crear un glosario, los vencedores internalizan conceptos y aprenden a comunicar su pensamiento matemático. La escritura se convierte en herramienta para pensar matemáticamente. Evaluación Integral: Se valorará la correcta aplicación de procedimientos y uso de terminología (CONOCER, HACER), precisión y rigor (HACER, SER), y colaboración (CONVIVIR)."
+                    }
+                }
+            }
+        ];
+
+        function createList(items) {
+            if (!items || items.length === 0) return '<p class="text-stone-600">No especificado.</p>';
+            return `<ul class="list-disc space-y-1 text-stone-700">${items.map(item => `<li>${item}</li>`).join('')}</ul>`;
+        }
+        
+        function createCollapsibleSection(title, content, initiallyOpen = false) {
+            const uniqueId = `collapsible-${Math.random().toString(36).substr(2, 9)}`;
+            return `
+                <div class="mb-3 border border-stone-200 rounded-md overflow-hidden">
+                    <div class="collapsible-header bg-stone-50 hover:bg-stone-100 p-3 flex justify-between items-center">
+                        <h4 class="font-semibold text-teal-700">${title}</h4>
+                        <span class="arrow text-teal-700 text-xl">${initiallyOpen ? '▲' : '▼'}</span>
+                    </div>
+                    <div class="collapsible-content p-3 border-t border-stone-200 ${initiallyOpen ? 'open' : ''}" style="${initiallyOpen ? 'max-height: 2000px;' : ''}">
+                        ${content}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTaller(taller) {
+            let objetivosHtml = '<h4 class="sub-section-title">Objetivos Específicos:</h4>';
+            if (taller.objetivos) {
+                objetivosHtml += `<p class="mb-2"><strong>CONOCER:</strong> ${taller.objetivos.CONOCER}</p>`;
+                objetivosHtml += `<p class="mb-2"><strong>HACER:</strong> ${taller.objetivos.HACER}</p>`;
+                objetivosHtml += `<p class="mb-2"><strong>SER:</strong> ${taller.objetivos.SER}</p>`;
+                objetivosHtml += `<p><strong>CONVIVIR:</strong> ${taller.objetivos.CONVIVIR}</p>`;
+            } else {
+                objetivosHtml += '<p class="text-stone-600">No especificados.</p>';
+            }
+
+            let faseOnlineHtml = `<h5 class="font-medium text-stone-700 mt-2 mb-1">Actividades de investigación y recopilación:</h5>${createList(taller.faseOnline.actividades)}`;
+            faseOnlineHtml += `<h5 class="font-medium text-stone-700 mt-2 mb-1">Herramientas online a utilizar:</h5>${createList(taller.faseOnline.herramientas)}`;
+            faseOnlineHtml += `<h5 class="font-medium text-stone-700 mt-2 mb-1">Hallazgos o productos intermedios:</h5>${createList(taller.faseOnline.productosIntermedios)}`;
+            
+            let fasePresencialHtml = `<h5 class="font-medium text-stone-700 mt-2 mb-1">Actividades a desarrollar en el aula:</h5>${createList(taller.fasePresencial.actividades)}`;
+            fasePresencialHtml += `<h5 class="font-medium text-stone-700 mt-2 mb-1">Rol del facilitador:</h5>${createList(taller.fasePresencial.rolFacilitador)}`;
+
+            let produccionEscritaHtml = `<h5 class="font-medium text-stone-700 mt-2 mb-1">Registro en cuaderno de apuntes:</h5>${createList(taller.produccionEscrita.cuaderno)}`;
+            produccionEscritaHtml += `<h5 class="font-medium text-stone-700 mt-2 mb-1">Elaboración de informes o documentos estructurados:</h5>${createList(taller.produccionEscrita.informes)}`;
+            produccionEscritaHtml += `<h5 class="font-medium text-stone-700 mt-2 mb-1">Creación de material para el portafolio individual:</h5>${createList(taller.produccionEscrita.portafolio)}`;
+            if (taller.produccionEscrita.refuerzo) {
+                 produccionEscritaHtml += `<div class="mt-3 pt-3 border-t border-stone-200">
+                    <h5 class="font-medium text-stone-700 mb-1">${taller.produccionEscrita.refuerzo.titulo}</h5>
+                    <p class="text-sm text-stone-600">${taller.produccionEscrita.refuerzo.descripcion}</p>
+                 </div>`;
+            }
+
+            return `
+                <div class="section-card">
+                    <h2 class="text-2xl font-bold text-teal-700 mb-1">${taller.nombre}</h2>
+                    <p class="text-sm text-stone-500 mb-1"><strong>Dirigido a:</strong> ${taller.dirigidoA}</p>
+                    <p class="text-sm text-stone-500 mb-4"><strong>Duración Sugerida:</strong> ${taller.duracionSugerida}</p>
+                    
+                    <div class="mb-3">
+                        <h3 class="section-title">Introducción al Taller</h3>
+                        <p class="text-stone-700">Este taller está diseñado para complementar el estudio regular de la materia Matemáticas del Semestre I, enfocándose en ${taller.id === 'taller1' ? 'la valoración de las matemáticas en el entorno y sus conexiones' : 'la formalización y aplicación de conceptos clave'}. A continuación, se detallan sus componentes:</p>
+                    </div>
+
+                    ${createCollapsibleSection('<span class="icon">📚</span>Áreas Integradas', createList(taller.areasIntegradas))}
+                    ${createCollapsibleSection('<span class="icon">🎯</span>Objetivos de Aprendizaje', objetivosHtml, true)}
+                    ${createCollapsibleSection('<span class="icon">🔗</span>Vinculación con el Componente Comunitario-Socio-Laboral', `<p class="text-stone-700">${taller.vinculacionComponente}</p>`)}
+                    ${createCollapsibleSection(taller.faseOnline.titulo, faseOnlineHtml)}
+                    ${createCollapsibleSection(taller.fasePresencial.titulo, fasePresencialHtml)}
+                    ${createCollapsibleSection(taller.produccionEscrita.titulo, produccionEscritaHtml)}
+                </div>
+            `;
+        }
+
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const contentSections = document.querySelectorAll('.content-section');
+
+        function activateTab(tabId) {
+            tabButtons.forEach(button => {
+                if (button.dataset.tab === tabId) {
+                    button.classList.add('active', 'bg-teal-600', 'text-white');
+                    button.classList.remove('bg-stone-50', 'text-stone-700', 'hover:bg-stone-100');
+                } else {
+                    button.classList.remove('active', 'bg-teal-600', 'text-white');
+                    button.classList.add('bg-stone-50', 'text-stone-700', 'hover:bg-stone-100');
+                }
+            });
+            contentSections.forEach(section => {
+                section.classList.toggle('active', section.id === tabId);
+            });
+        }
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                activateTab(button.dataset.tab);
+            });
+        });
+
+        function initializeCollapsibles() {
+            document.querySelectorAll('.collapsible-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const content = header.nextElementSibling;
+                    const arrow = header.querySelector('.arrow');
+                    content.classList.toggle('open');
+                    if (content.classList.contains('open')) {
+                        arrow.textContent = '▲';
+                    } else {
+                        arrow.textContent = '▼';
+                    }
+                });
+            });
+        }
+        
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        talleresData.forEach(taller => {
+            const container = document.getElementById(taller.id);
+            if (container) {
+                container.innerHTML = renderTaller(taller);
+            }
+        });
+        
+        initializeCollapsibles();
+        
+        if (tabButtons.length > 0) {
+            activateTab(tabButtons[0].dataset.tab);
+        }
+
+    </script>
+</body>
+</html>
